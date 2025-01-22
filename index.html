@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smute</title>
+
+  <!-- Main CSS (inline or external if you wish) -->
+  <style>
+    /* ====================== BASE STYLES ====================== */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: black;
+      color: lime;
+      font-family: 'Courier New', Courier, monospace;
+      -webkit-text-size-adjust: none;
+    }
+    #home {
+      background-image: url('smute_logo.jpg');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      width: 100vw;
+      height: 100vh;
+    }
+    #home img { 
+      display: none; 
+    }
+
+    /* ====================== NAVIGATION BAR ====================== */
+    nav {
+      position: fixed;
+      top: 0;
+      right: 0;
+      background: black;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 999;
+      overflow-x: auto;
+      max-width: 100%;
+    }
+    nav button {
+      color: lime;
+      background: transparent;
+      border: 1px solid lime;
+      font-size: 1em;
+      padding: 5px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    nav button:hover {
+      background: lime;
+      color: black;
+    }
+
+    @media (max-width: 500px) {
+      nav button {
+        font-size: 0.9em;
+        padding: 4px 6px;
+      }
+    }
+
+    /* ========== Content Sections ========== */
+    .content {
+      display: none;
+      padding: 1rem;
+      margin-top: 60px; /* offset below nav */
+    }
+    .content.active {
+      display: block;
+    }
+    .page-title {
+      text-align: center;
+      margin-top: 4rem;
+      font-size: 1em;
+      color: grey;
+    }
+
+    /* ========== Performance Mode Button ========== */
+    .performance-mode {
+      position: fixed;
+      bottom: 10px;
+      right: 5px;
+      background: lime;
+      color: black;
+      border: none;
+      padding: 10px;
+      font-size: 1em;
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 998;
+    }
+    .performance-mode:hover {
+      background: black;
+      color: lime;
+      border: 1px solid lime;
+    }
+
+    /* ========== Mic & Monitoring Toggles ========== */
+    .mic-toggle {
+      position: fixed;
+      bottom: 10px;
+      right: 310px;
+      background: lime;
+      color: black;
+      border: none;
+      padding: 10px;
+      font-size: 1em;
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 998;
+    }
+    .mic-toggle.active {
+      background: black;
+      color: lime;
+      border: 2px solid lime;
+    }
+    .monitoring-toggle {
+      position: fixed;
+      bottom: 10px;
+      right: 165px;
+      background: lime;
+      color: black;
+      border: none;
+      padding: 8px;
+      font-size: 0.9em;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 130px;
+      text-align: center;
+      z-index: 998;
+    }
+    .monitoring-toggle.off {
+      background: black;
+      color: lime;
+      border: 2px solid lime;
+    }
+
+    /* =========== DRAG HANDLE & EDIT MODE =========== */
+    .drag-handle {
+      display: none;
+      width: 100%;
+      height: 20px;
+      background: #444;
+      color: #999;
+      font-size: 0.7em;
+      text-align: center;
+      line-height: 20px;
+      cursor: move;
+      touch-action: none;
+    }
+    .editable .drag-handle {
+      display: block;
+    }
+    .editable {
+      outline: 2px dashed lime;
+      resize: both !important;
+      overflow: auto !important;
+    }
+
+    /* ============= LOOP PAGE ============= */
+    .loop-button-item {
+      position: absolute;
+      width: 30vw;
+      min-width: 100px;
+      height: 20vh;
+      min-height: 60px;
+      background: lime;
+      color: black;
+      font-size: 1em;
+      border-radius: 10px;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .loop-button {
+      width: 100%;
+      height: calc(100% - 20px);
+      border: none;
+      background: black;
+      color: lime;
+      cursor: pointer;
+      font-size: 1.2em;
+      border-radius: 6px;
+    }
+    .loop-button:hover {
+      background: lime;
+      color: black;
+    }
+
+    /* ============= FX PAGE ============= */
+    .fx-container {
+      position: relative;
+      width: 100%;
+      height: 80vh;
+      overflow: auto;
+      margin-top: 2rem;
+    }
+    .fx-item, .slider-item {
+      position: absolute;
+      border-radius: 10px;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .fx-item {
+      width: 320px;
+      min-width: 100px;
+      height: 180px;
+      min-height: 60px;
+      background: lime;
+      color: black;
+      font-size: 1.5em;
+    }
+    .fx-button {
+      width: 100%;
+      height: calc(100% - 20px);
+      border: none;
+      background: transparent;
+      color: black;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    }
+    .fx-button:hover {
+      box-shadow: 0 0 8px lime;
+    }
+    .fx-button.active {
+      background: black;
+      color: lime;
+      border: 2px solid lime;
+      box-shadow: 0 0 10px 2px lime;
+    }
+    .fx-slider {
+      position: absolute;
+      left: 0;
+      top: 20px;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+      width: 200px;
+      height: 30px;
+      cursor: pointer;
+      touch-action: none;
+      background: transparent;
+      appearance: none;
+    }
+    .fx-slider::-webkit-slider-runnable-track {
+      height: 6px;
+      background: lime;
+      border: 1px solid black;
+    }
+    .fx-slider::-webkit-slider-thumb {
+      width: 20px;
+      height: 20px;
+      background: black;
+      border: 2px solid lime;
+      border-radius: 50%;
+      appearance: none;
+      margin-top: -7px;
+      cursor: pointer;
+    }
+
+    /* =========== MIDI Output Dropdown =========== */
+    #midiSelectContainer {
+      position: fixed;
+      bottom: 60px;
+      right: 30px;
+      background: black;
+      border: 1px solid lime;
+      padding: 6px;
+      border-radius: 4px;
+      z-index: 998;
+    }
+    #midiOutputs {
+      font-size: 1em;
+      background: #333;
+      color: lime;
+      border: 1px solid lime;
+      border-radius: 4px;
+    }
+
+    /* ============= CONTROL PAGE ============= */
+    .control-large-btn,
+    .control-small-btn {
+      position: absolute;
+      background: #111;
+      color: lime;
+      border: 1px dashed lime;
+      border-radius: 6px;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .control-large-btn {
+      width: 320px;
+      height: 120px;
+    }
+    .control-small-btn {
+      width: 140px;
+      height: 60px;
+    }
+    .control-button-label {
+      display: block;
+      margin: 20px;
+      text-align: center;
+      font-size: 1em;
+      font-weight: bold;
+      color: lime;
+    }
+    .midi-slider {
+      position: absolute;
+      background: black;
+      border: 2px solid lime;
+      border-radius: 6px;
+      padding: 10px;
+      z-index: 1;
+    }
+    .midi-slider input[type="range"] {
+      width: 100%;
+      appearance: none;
+      background: transparent;
+    }
+    .midi-slider input[type="range"]::-webkit-slider-runnable-track {
+      height: 6px;
+      background: lime;
+      border: 1px solid black;
+    }
+    .midi-slider input[type="range"]::-webkit-slider-thumb {
+      width: 20px;
+      height: 20px;
+      background: black;
+      border: 2px solid lime;
+      border-radius: 50%;
+      appearance: none;
+      margin-top: -7px;
+      cursor: pointer;
+    }
+  </style>
+
+  <!-- Link to external script.js -->
+  <script defer src="script.js"></script>
+</head>
+
+<body>
+  <!-- ========== NAV BAR ========== -->
+  <nav>
+    <button onclick="switchPage('home')">Home</button>
+    <button onclick="switchPage('loop')">Loop</button>
+    <button onclick="switchPage('fx')">FX</button>
+    <button onclick="switchPage('pitch')">Pitch</button>
+    <button onclick="switchPage('control')">Control</button>
+    <button id="edit-mode-toggle" onclick="toggleEditMode()">Edit Mode: OFF</button>
+  </nav>
+
+  <!-- Mic Toggle -->
+  <button id="mic-toggle" class="mic-toggle">Mic On/Off</button>
+  <!-- Monitoring Toggle -->
+  <button id="monitoring-toggle" class="monitoring-toggle">Monitoring On</button>
+
+  <!-- MIDI Output Select -->
+  <div id="midiSelectContainer">
+    <label for="midiOutputs">MIDI Out:</label>
+    <select id="midiOutputs"></select>
+  </div>
+
+  <!-- ===== HOME PAGE ===== -->
+  <div id="home" class="content active">
+    <img src="smute_logo.jpg" alt="Smute Logo">
+  </div>
+
+  <!-- ===== LOOP PAGE ===== -->
+  <div id="loop" class="content">
+    <h1 class="page-title" style="margin-bottom:1.5rem;">Loop Mode</h1>
+
+    <div class="loop-button-item editable" style="left: 7.22739px; top: 572.916px; height: 124px; width: 221px;">
+      <div class="drag-handle">drag</div>
+      <button class="loop-button" style="background: black; color: lime;"
+              onclick="loopButtonPressed(); navigator.vibrate([20]);">LOOP</button>
+    </div>
+
+    <div id="stop-button-item" class="loop-button-item editable"
+         style="left: 8.34576px; top: 712.407px; height: 97px; width: 221px;">
+      <div class="drag-handle">drag</div>
+      <button class="loop-button" onclick="stopLoop(); navigator.vibrate([20, 20, 20]);">STOP</button>
+    </div>
+
+    <div id="back-button-item" class="loop-button-item editable"
+         style="left: 7.26306px; top: 443.21px; width: 221px; height: 120px;">
+      <div class="drag-handle">drag</div>
+      <button class="loop-button" onclick="backLayer(); navigator.vibrate([20, 20, 40]);">BACK</button>
+    </div>
+
+    <button class="performance-mode" onclick="enablePerformanceMode()">Performance Mode</button>
+  </div>
+
+  <!-- ===== FX PAGE ===== -->
+  <div id="fx" class="content">
+    <h1 class="page-title" style="margin-bottom:1.5rem;">FX Mode</h1>
+    <div class="fx-container">
+      <div id="reverb-item" class="fx-item editable" style="width: 203px; height: 134px; left: 4.55313px; top: 302.896px;">
+        <div class="drag-handle">drag</div>
+        <button id="reverb-button" class="fx-button" onclick="toggleReverb(); navigator.vibrate([20]);">
+          Reverb: OFF
+        </button>
+      </div>
+      <div id="reverb-slider-item" class="slider-item editable"
+           style="left: 217.513px; top: 303.601px; width: 129px; height: 142px;">
+        <div class="drag-handle">drag</div>
+        <input id="reverb-slider" type="range" min="0" max="100" value="50" class="fx-slider">
+      </div>
+
+      <div id="delay-item" class="fx-item editable" style="left: 2.0271px; top: 475.641px; width: 208px; height: 121px;">
+        <div class="drag-handle">drag</div>
+        <button id="delay-button" class="fx-button" onclick="toggleDelay(); navigator.vibrate([20, 20, 20]);">
+          Delay: OFF
+        </button>
+      </div>
+      <div id="delay-slider-item" class="slider-item editable"
+           style="left: 221.809px; top: 466.908px; width: 126px; height: 137px;">
+        <div class="drag-handle">drag</div>
+        <input id="delay-slider" type="range" min="0" max="100" value="50" class="fx-slider">
+      </div>
+    </div>
+    <button class="performance-mode" onclick="enablePerformanceMode()">Performance Mode</button>
+  </div>
+
+  <!-- ===== PITCH PAGE ===== -->
+  <div id="pitch" class="content">
+    <h1 class="page-title" style="margin-bottom:1.5rem;">Pitch Mode</h1>
+
+    <!-- Overdrive Button -->
+    <div class="loop-button-item editable" style="left: 19.6468px; top: 395.61px; width: 221px; height: 120px;">
+      <div class="drag-handle">drag</div>
+      <button id="btnOverdrive" class="loop-button" style="background: black; color: lime;"
+              onclick="toggleOverdrive();">
+        Overdrive: OFF
+      </button>
+    </div>
+
+    <!-- Pitch Shift Button -->
+    <div class="loop-button-item editable" style="left: 20.7695px; top: 539.64px; width: 221px; height: 120px;">
+      <div class="drag-handle">drag</div>
+      <button id="btnPitchShift" class="loop-button" style="background: black; color: lime;"
+              onclick="togglePitchShift();">
+        Pitch Shift: OFF
+      </button>
+    </div>
+
+    <!-- Chorus Button -->
+    <div class="loop-button-item editable" style="left: 18.2834px; top: 682.755px; width: 221px; height: 120px;">
+      <div class="drag-handle">drag</div>
+      <button id="btnChorus" class="loop-button" style="background: black; color: lime;"
+              onclick="toggleChorus();">
+        Chorus: OFF
+      </button>
+    </div>
+
+    <button class="performance-mode" onclick="enablePerformanceMode()">Performance Mode</button>
+  </div>
+
+  <!-- ===== CONTROL PAGE ===== -->
+  <div id="control" class="content">
+    <h1 class="page-title" style="margin-bottom:1.5rem;">Control Mode</h1>
+
+    <!-- Gyroscope -->
+    <label id="gyroLabel" style="position:absolute; top:70px; left:30px;">
+      <input id="gyroCheck" type="checkbox" style="transform: scale(1.3); margin-right:10px;" onclick="toggleGyroCheckbox()"/>
+      Enable Gyroscope
+    </label>
+    <div id="gyroDisplay" style="position:absolute; top:90px; left:30px;">Gyro OFF</div>
+
+    <!-- Mute X/Y/Z checks -->
+    <label style="position:absolute; top:120px; left:30px;">
+      <input type="checkbox" id="gyroXCheck" checked style="transform: scale(1.2); margin-right:8px;"/>
+      Send X
+    </label>
+    <label style="position:absolute; top:150px; left:30px;">
+      <input type="checkbox" id="gyroYCheck" checked style="transform: scale(1.2); margin-right:8px;"/>
+      Send Y
+    </label>
+    <label style="position:absolute; top:180px; left:30px;">
+      <input type="checkbox" id="gyroZCheck" checked style="transform: scale(1.2); margin-right:8px;"/>
+      Send Z
+    </label>
+
+    <!-- Large Buttons -->
+    <div id="ctrlLarge1" class="control-large-btn"
+         style="left: 11.9759px; top: 695.969px; background: rgb(17, 17, 17); width: 248px; height: 108px;">
+      <div class="drag-handle">drag</div>
+      <span class="control-button-label">MIDI 60</span>
+    </div>
+    <div id="ctrlLarge2" class="control-large-btn"
+         style="left: 14.9787px; top: 567.973px; background: rgb(17, 17, 17); width: 241px; height: 105px;">
+      <div class="drag-handle">drag</div>
+      <span class="control-button-label">MIDI 62</span>
+    </div>
+
+    <!-- Small Buttons -->
+    <div id="ctrlSmall1" class="control-small-btn"
+         style="left: 24.2861px; top: 437.803px; background: rgb(17, 17, 17); width: 100px; height: 100px;">
+      <div class="drag-handle">drag</div>
+      <span class="control-button-label">MIDI 64</span>
+    </div>
+    <div id="ctrlSmall2" class="control-small-btn"
+         style="left: 25.4318px; top: 322.834px; background: rgb(17, 17, 17); width: 100px; height: 100px;">
+      <div class="drag-handle">drag</div>
+      <span class="control-button-label">MIDI 65</span>
+    </div>
+    <div id="ctrlSmall3" class="control-small-btn"
+         style="left: 25.9604px; top: 213.048px; background: rgb(17, 17, 17); width: 100px; height: 95px;">
+      <div class="drag-handle">drag</div>
+      <span class="control-button-label">MIDI 67</span>
+    </div>
+
+    <!-- Control Slider => CC #13 -->
+    <div id="ctrlSlider" class="midi-slider"
+         style="left: 179.597px; top: 304.946px; width: 198px; height: 73px;">
+      <div class="drag-handle">drag</div>
+      <input type="range" min="0" max="127" />
+    </div>
+
+    <button class="performance-mode" onclick="enablePerformanceMode()">Performance Mode</button>
+  </div>
+</body>
+</html>
